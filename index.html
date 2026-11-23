@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090914">
+<title>NOVA AI – Media Enhancer</title>
+<style>
+:root{color-scheme:dark;--bg:#090914;--panel:#141426;--panel2:#1c1c33;--line:#30304b;--text:#f7f7ff;--muted:#a5a5c2;--accent:#9b6cff;--accent2:#6c5ce7}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#21133d 0,#090914 48%);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+header{padding:26px 18px 18px;max-width:900px;margin:auto} .brand{font-size:14px;letter-spacing:.22em;color:#c9b5ff;font-weight:800}
+h1{font-size:clamp(32px,8vw,52px);line-height:1.03;margin:12px 0}header p,.muted{color:var(--muted);line-height:1.5}
+main{max-width:900px;margin:auto;padding:0 14px 50px}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+button,.tab{border:0;border-radius:13px;padding:13px 15px;font-weight:750;font-size:15px;cursor:pointer}
+.tab{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}.tab.active{background:linear-gradient(120deg,#7546d9,#4b45b9);color:white;border-color:transparent}
+.card{background:rgba(20,20,38,.94);border:1px solid var(--line);border-radius:20px;padding:17px;margin:12px 0;box-shadow:0 12px 35px #0003}
+h2{font-size:19px;margin:0 0 12px}label{display:block;color:#dddaf5;font-size:14px;font-weight:650;margin:13px 0 7px}
+input[type=file]{width:100%;padding:13px;background:#0e0e1d;border:1px dashed #66618a;border-radius:12px;color:var(--muted)}
+select,input[type=range]{width:100%;accent-color:var(--accent)}select{background:#0e0e1d;color:white;border:1px solid var(--line);padding:12px;border-radius:11px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{width:100%;color:white;background:linear-gradient(110deg,#8956ed,#5554d9);margin-top:14px}.btn.secondary{background:#292943;border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.preview{width:100%;max-height:440px;object-fit:contain;background:#080810;border-radius:12px;margin-top:12px}
+#videoPreview{width:100%;max-height:380px;background:#05050a;border-radius:12px;margin-top:12px}
+.hidden{display:none!important}.note{font-size:13px;color:var(--muted);line-height:1.5}.status{margin-top:12px;color:#cdbaff;font-size:14px;min-height:20px}
+footer{max-width:900px;margin:0 auto;padding:0 18px 35px;color:#777792;font-size:12px;line-height:1.5}
+a{color:#c9b5ff}.pill{display:inline-block;padding:5px 9px;background:#282044;border-radius:99px;color:#d6c5ff;font-size:11px;font-weight:800;letter-spacing:.06em}
+@media(max-width:520px){.row{grid-template-columns:1fr}.card{padding:15px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">✦ NOVA AI</div>
+  <h1>Make your media<br><span style="color:#b99aff">shine brighter.</span></h1>
+  <p>Dein privater Media-Enhancer für Bilder und Videos – direkt im Browser auf deinem Gerät.</p>
+  <span class="pill">BETA · LOKALE VERARBEITUNG</span>
+</header>
+<main>
+  <div class="tabs">
+    <button class="tab active" id="imageTab" type="button">▧ Bilder verbessern</button>
+    <button class="tab" id="videoTab" type="button">▶ Videos verbessern</button>
+  </div>
+
+  <section id="imagePanel" class="card">
+    <h2>Bild Studio</h2>
+    <p class="note">Bild auswählen, Vergrößerung und Schärfe einstellen und das Ergebnis speichern.</p>
+    <label for="imageFile">Bild auswählen</label>
+    <input id="imageFile" type="file" accept="image/*">
+    <div class="row">
+      <div><label for="imageScale">Vergrößerung</label><select id="imageScale"><option value="1">1× – Originalgröße</option><option value="2" selected>2× – Doppelte Größe</option><option value="4">4× – Vierfache Größe</option></select></div>
+      <div><label for="sharpness">Schärfe: <span id="sharpLabel">35</span>%</label><input id="sharpness" type="range" min="0" max="100" value="35"></div>
+    </div>
+    <button class="btn" id="enhanceImage" type="button" disabled>✦ Bild verbessern</button>
+    <img id="imagePreview" class="preview hidden" alt="Vorschau des verbesserten Bildes">
+    <button class="btn secondary hidden" id="downloadImage" type="button">Bild herunterladen</button>
+    <div id="imageStatus" class="status" aria-live="polite"></div>
+  </section>
+
+  <section id="videoPanel" class="card hidden">
+    <h2>Video Studio</h2>
+    <p class="note">Das Video wird im Browser auf eine größere Ausgabegröße gezeichnet und als WebM aufgenommen. Die Dauer entspricht dem Originalvideo.</p>
+    <label for="videoFile">Video auswählen</label>
+    <input id="videoFile" type="file" accept="video/*">
+    <video id="videoPreview" controls playsinline class="hidden"></video>
+    <div class="row">
+      <div><label for="videoScale">Ausgabegröße</label><select id="videoScale"><option value="1">1× – Originalgröße</option><option value="2" selected>2× – Doppelte Breite/Höhe</option></select></div>
+      <div><label for="videoSharp">Schärfe: <span id="videoSharpLabel">20</span>%</label><input id="videoSharp" type="range" min="0" max="60" value="20"></div>
+    </div>
+    <button class="btn" id="processVideo" type="button" disabled>▶ Video verarbeiten & aufnehmen</button>
+    <button class="btn secondary hidden" id="downloadVideo" type="button">Verarbeitetes Video herunterladen</button>
+    <div id="videoStatus" class="status" aria-live="polite"></div>
+    <p class="note">Hinweis: Safari/iOS unterstützt nicht jede Aufnahmefunktion gleich. Wenn die Aufnahme nicht startet, probiere es mit einem kürzeren Video oder einem aktuellen Safari.</p>
+  </section>
+  <section class="card">
+    <h2>Was NOVA AI aktuell macht</h2>
+    <p class="note">Diese kostenlose Starterversion nutzt Canvas-Verarbeitung im Browser: Größenanpassung und einen einfachen Schärfefilter. Sie enthält noch kein trainiertes KI-Modell wie Topaz, keine echte KI-Rauschreduzierung und keine KI-Bildrekonstruktion. Für echtes KI-Upscaling wäre später ein Modell oder ein eigener Rechenserver nötig.</p>
+    <p class="note">Deine ausgewählten Dateien werden von diesem Code nicht an einen Server hochgeladen.</p>
+  </section>
+</main>
+<footer>NOVA AI · Private Beta. Verarbeite nur Medien, an denen du die nötigen Rechte hast. Sehr große Dateien können den Arbeitsspeicher deines iPhones stark beanspruchen.</footer>
+<script>
+const $ = id => document.getElementById(id);
+const imageTab=$('imageTab'),videoTab=$('videoTab'),imagePanel=$('imagePanel'),videoPanel=$('videoPanel');
+imageTab.addEventListener('click',()=>{imageTab.classList.add('active');videoTab.classList.remove('active');imagePanel.classList.remove('hidden');videoPanel.classList.add('hidden')});
+videoTab.addEventListener('click',()=>{videoTab.classList.add('active');imageTab.classList.remove('active');videoPanel.classList.remove('hidden');imagePanel.classList.add('hidden')});
+let sourceImage=null,imageBlob=null,videoBlob=null,videoUrl=null;
+$('sharpness').addEventListener('input',e=>$('sharpLabel').textContent=e.target.value);
+$('videoSharp').addEventListener('input',e=>$('videoSharpLabel').textContent=e.target.value);
+$('imageFile').addEventListener('change',e=>{
+ const f=e.target.files[0]; if(!f)return;
+ const url=URL.createObjectURL(f); const img=new Image();
+ img.onload=()=>{sourceImage=img;$('enhanceImage').disabled=false;$('imageStatus').textContent=`Geladen: ${img.naturalWidth} × ${img.naturalHeight} Pixel`;URL.revokeObjectURL(url)};
+ img.onerror=()=>{$('imageStatus').textContent='Dieses Bild konnte nicht geöffnet werden.'};img.src=url;
+});
+$('enhanceImage').addEventListener('click',()=>{
+ if(!sourceImage)return;
+ const scale=Number($('imageScale').value),w=sourceImage.naturalWidth*scale,h=sourceImage.naturalHeight*scale;
+ if(w*h>30000000){$('imageStatus').textContent='Das Ergebnis wäre zu groß für einen stabilen Lauf auf dem iPhone. Bitte 2× oder ein kleineres Bild verwenden.';return}
+ $('imageStatus').textContent='Verarbeite Bild …';
+ try{
+  const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sourceImage,0,0,w,h);
+  const amount=Number($('sharpness').value)/100;
+  if(amount>0){
+   const tmp=document.createElement('canvas');tmp.width=w;tmp.height=h;tmp.getContext('2d').drawImage(c,0,0);
+   const t=tmp.getContext('2d'),out=ctx;const src=t.getImageData(0,0,w,h),dst=out.createImageData(w,h),a=src.data,b=dst.data;
+   const k=amount*0.8;
+   for(let y=1;y<h-1;y++){for(let x=1;x<w-1;x++){let i=(y*w+x)*4;
+    for(let ch=0;ch<3;ch++){let v=a[i+ch]*(1+4*k)-k*(a[i-4+ch]+a[i+4+ch]+a[i-4*w+ch]+a[i+4*w+ch]);b[i+ch]=Math.max(0,Math.min(255,v))}
+    b[i+3]=a[i+3];
+   }}
+   // Copy untouched border pixels.
+   for(let x=0;x<w;x++){for(let y of [0,h-1]){let i=(y*w+x)*4;b.set(a.slice(i,i+4),i)}}
+   for(let y=0;y<h;y++){for(let x of [0,w-1]){let i=(y*w+x)*4;b.set(a.slice(i,i+4),i)}}
+   out.putImageData(dst,0,0);
+  }
+  c.toBlob(blob=>{if(!blob){$('imageStatus').textContent='Export fehlgeschlagen.';return}imageBlob=blob;$('imagePreview').src=URL.createObjectURL(blob);$('imagePreview').classList.remove('hidden');$('downloadImage').classList.remove('hidden');$('imageStatus').textContent=`Fertig: ${w} × ${h} Pixel.`;},'image/jpeg',.94);
+ }catch(err){$('imageStatus').textContent='Fehler: Bild zu groß oder nicht unterstützt.'}
+});
+$('downloadImage').addEventListener('click',()=>{if(!imageBlob)return;const a=document.createElement('a');a.href=URL.createObjectURL(imageBlob);a.download='nova-ai-enhanced.jpg';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)});
+$('videoFile').addEventListener('change',e=>{
+ const f=e.target.files[0];if(!f)return;
+ if(videoUrl)URL.revokeObjectURL(videoUrl);videoUrl=URL.createObjectURL(f);$('videoPreview').src=videoUrl;$('videoPreview').classList.remove('hidden');$('processVideo').disabled=false;$('videoStatus').textContent=`Video geladen: ${f.name}`;
+ $('downloadVideo').classList.add('hidden');videoBlob=null;
+});
+$('processVideo').addEventListener('click',async()=>{
+ const v=$('videoPreview');if(!v.videoWidth){$('videoStatus').textContent='Bitte Video zuerst laden.';return}
+ if(!HTMLCanvasElement.prototype.captureStream||!window.MediaRecorder){$('videoStatus').textContent='Videoaufnahme wird von diesem Browser nicht unterstützt. Bitte aktuellen Safari verwenden.';return}
+ const scale=Number($('videoScale').value),w=v.videoWidth*scale,h=v.videoHeight*scale;
+ if(w*h>12000000){$('videoStatus').textContent='Zu hohe Ausgabegröße für ein iPhone. Bitte 1× wählen oder ein kleineres Video nutzen.';return}
+ const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');
+ const stream=canvas.captureStream(30);
+ const mime=['video/mp4;codecs=h264','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+ let recorder;try{recorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined)}catch(e){$('videoStatus').textContent='Aufnahmeformat nicht verfügbar. Bitte Safari aktualisieren.';return}
+ const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+ recorder.onstop=()=>{videoBlob=new Blob(chunks,{type:recorder.mimeType||'video/webm'});$('downloadVideo').classList.remove('hidden');$('videoStatus').textContent=`Fertig! Ausgabe: ${w} × ${h}. Dateiformat: ${videoBlob.type}.`;stream.getTracks().forEach(t=>t.stop())};
+ recorder.start(500);$('processVideo').disabled=true;$('videoStatus').textContent='Video läuft – bitte diese Seite geöffnet lassen.';
+ const sharp=Number($('videoSharp').value)/100;
+ let raf;const draw=()=>{if(v.ended||v.paused)return;ctx.filter=sharp>0?`contrast(${1+sharp*.35})`:'none';ctx.drawImage(v,0,0,w,h);ctx.filter='none';raf=requestAnimationFrame(draw)};
+ v.currentTime=0;await v.play();draw();
+ v.onended=()=>{cancelAnimationFrame(raf);if(recorder.state!=='inactive')recorder.stop();$('processVideo').disabled=false};
+});
+$('downloadVideo').addEventListener('click',()=>{if(!videoBlob)return;const a=document.createElement('a');const u=URL.createObjectURL(videoBlob);a.href=u;a.download=videoBlob.type.includes('mp4')?'nova-ai-enhanced.mp4':'nova-ai-enhanced.webm';a.click();setTimeout(()=>URL.revokeObjectURL(u),5000)});
+</script>
+</body>
+</html>
